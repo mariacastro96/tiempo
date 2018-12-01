@@ -19,6 +19,7 @@ def ask_city
 end
 
 def valid?(city)
+  # see if city is correct
   unless cities_links.include? city
     puts 'Por favor inserte un municipio existente'
     ask_city
@@ -60,6 +61,7 @@ def actions(answer)
 end
 
 def day_adjusted
+  #the days in the API start as Saturday = 1 and Date.today starts as monday = 1
   day = Date.today.cwday.to_i
   if (1..5).to_a.include? day
     day + 2
@@ -69,6 +71,7 @@ def day_adjusted
 end
 
 def cities_links
+  # all the links to the cities's details
   cities = {}
   parse('http://api.tiempo.com/index.php?api_lang=es&division=102')
   @xml_doc.xpath('//data').each do |path|
@@ -78,6 +81,7 @@ def cities_links
 end
 
 def temperatures
+  # array of temperatures (min or max)
   parse(cities_links[@city])
   temperatures = []
   @xml_doc.xpath("//var[icon=#{@avg}]/data/forecast").each do |forecast|
@@ -87,6 +91,7 @@ def temperatures
 end
 
 def temperature
+  # data about today's temperature (min and max)
   temp_info = {}
   parse(cities_links[@city])
   temp_info[:min_temp] = @xml_doc.xpath("//var[icon=#{@values[:min]}]/data/forecast[@data_sequence = '#{day_adjusted}']/@value").text.to_i
@@ -95,6 +100,7 @@ def temperature
 end
 
 def average(temp, kind)
+  # average of array of temperatures (min or max)
   avg = (temp.inject(0) { |sum, x| sum + x }.to_f / temp.count).round(2)
   "El promedio #{kind} es: #{avg}C"
 end
